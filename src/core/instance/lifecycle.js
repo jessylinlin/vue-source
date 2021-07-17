@@ -186,8 +186,9 @@ export function mountComponent(
             measure(`vue ${name} patch`, startTag, endTag)
         }
     } else {
+        //定义
         updateComponent = () => {
-            //用户传入和把模板转换成render函数的render 生成vnode
+            //用户传入和把模板转换成render函数的render vm._render()生成vnode,返回vnode 传给update
             //_update 对比两个Vnode差异 把Vnode转换为真实dom ，并挂载到页面
             vm._update(vm._render(), hydrating)
         }
@@ -197,6 +198,7 @@ export function mountComponent(
     // since the watcher's initial patch may call $forceUpdate (e.g. inside child
     // component's mounted hook), which relies on vm._watcher being already defined
     //noop 空函数 用户watcher 和computed用到
+    //调用updateComponent
     new Watcher(vm, updateComponent, noop, {
         before() {
             if (vm._isMounted && !vm._isDestroyed) {

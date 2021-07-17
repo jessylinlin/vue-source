@@ -35,7 +35,7 @@ export function initRender(vm: Component) {
 
     // normalization is always applied for the public version, used in
     // user-written render functions.
-    //h函数
+    //h函数 用户调用render()
     vm.$createElement = (a, b, c, d) => createElement(vm, a, b, c, d, true)
 
     // $attrs & $listeners are exposed for easier HOC creation.
@@ -95,6 +95,9 @@ export function renderMixin(Vue: Class < Component > ) {
             // separately from one another. Nested component's render fns are called
             // when parent component is patched.
             currentRenderingInstance = vm
+
+            //调用用户传入的render
+            //vm._renderProxy == vm
             vnode = render.call(vm._renderProxy, vm.$createElement) //vm.$createElement => h()
         } catch (e) {
             handleError(e, vm, `render`)
