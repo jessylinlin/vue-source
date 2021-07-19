@@ -23,7 +23,9 @@ export function initAssetRegisters(Vue: GlobalAPI) {
                 //原始Object  Object.prototype.toString.calll(obj) === '[object Object]'
                 if (type === 'component' && isPlainObject(definition)) {
                     definition.name = definition.name || id
-                        //vue.extend 普通对象转换为vue.component构造函数
+
+                    //vue.extend 普通选项对象转换为vue.component构造函数
+                    // this.options._base === Vue
                     definition = this.options._base.extend(definition)
                 }
                 if (type === 'directive' && typeof definition === 'function') {

@@ -11,78 +11,80 @@ type DataGenFunction = (el: ASTElement) => string;
 type DirectiveFunction = (el: ASTElement, dir: ASTDirective, warn: Function) => boolean;
 
 export class CodegenState {
-  options: CompilerOptions;
-  warn: Function;
-  transforms: Array<TransformFunction>;
-  dataGenFns: Array<DataGenFunction>;
-  directives: { [key: string]: DirectiveFunction };
-  maybeComponent: (el: ASTElement) => boolean;
-  onceId: number;
-  staticRenderFns: Array<string>;
-  pre: boolean;
+    options: CompilerOptions;
+    warn: Function;
+    transforms: Array < TransformFunction > ;
+    dataGenFns: Array < DataGenFunction > ;
+    directives: {
+        [key: string]: DirectiveFunction
+    };
+    maybeComponent: (el: ASTElement) => boolean;
+    onceId: number;
+    staticRenderFns: Array < string > ;
+    pre: boolean;
 
-  constructor (options: CompilerOptions) {
-    this.options = options
-    this.warn = options.warn || baseWarn
-    this.transforms = pluckModuleFunction(options.modules, 'transformCode')
-    this.dataGenFns = pluckModuleFunction(options.modules, 'genData')
-    this.directives = extend(extend({}, baseDirectives), options.directives)
-    const isReservedTag = options.isReservedTag || no
-    this.maybeComponent = (el: ASTElement) => !!el.component || !isReservedTag(el.tag)
-    this.onceId = 0
-    this.staticRenderFns = []
-    this.pre = false
-  }
+    constructor(options: CompilerOptions) {
+        this.options = options
+        this.warn = options.warn || baseWarn
+        this.transforms = pluckModuleFunction(options.modules, 'transformCode')
+        this.dataGenFns = pluckModuleFunction(options.modules, 'genData')
+        this.directives = extend(extend({}, baseDirectives), options.directives)
+        const isReservedTag = options.isReservedTag || no
+        this.maybeComponent = (el: ASTElement) => !!el.component || !isReservedTag(el.tag)
+        this.onceId = 0
+        this.staticRenderFns = []
+        this.pre = false
+    }
 }
 
 export type CodegenResult = {
-  render: string,
-  staticRenderFns: Array<string>
+    render: string,
+    staticRenderFns: Array < string >
 };
 
-export function generate (
-  ast: ASTElement | void,
-  options: CompilerOptions
+export function generate(
+    ast: ASTElement | void,
+    options: CompilerOptions
 ): CodegenResult {
-  const state = new CodegenState(options)
-  // fix #11483, Root level <script> tags should not be rendered.
-  const code = ast ? (ast.tag === 'script' ? 'null' : genElement(ast, state)) : '_c("div")'
-  return {
-    render: `with(this){return ${code}}`,
-    staticRenderFns: state.staticRenderFns
-  }
+    const state = new CodegenState(options)
+        // fix #11483, Root level <script> tags should not be rendered.
+    const code = ast ? (ast.tag === 'script' ? 'null' : genElement(ast, state)) : '_c("div")'
+    return {
+        render: `with(this){return ${code}}`,
+        staticRenderFns: state.staticRenderFns
+    }
 }
 
-export function genElement (el: ASTElement, state: CodegenState): string {
-  if (el.parent) {
-    el.pre = el.pre || el.parent.pre
-  }
+export function genElement(el: ASTElement, state: CodegenState): string {
+    if (el.parent) {
+        el.pre = el.pre || el.parent.pre
+    }
 
-  if (el.staticRoot && !el.staticProcessed) {
-    return genStatic(el, state)
-  } else if (el.once && !el.onceProcessed) {
-    return genOnce(el, state)
-  } else if (el.for && !el.forProcessed) {
-    return genFor(el, state)
-  } else if (el.if && !el.ifProcessed) {
-    return genIf(el, state)
-  } else if (el.tag === 'template' && !el.slotTarget && !state.pre) {
-    return genChildren(el, state) || 'void 0'
-  } else if (el.tag === 'slot') {
-    return genSlot(el, state)
-  } else {
-    // component or element
-    let code
-    if (el.component) {
-      code = genComponent(el.component, el, state)
+    if (el.staticRoot && !el.staticProcessed) {
+        return genStatic(el, state)
+    } else if (el.once && !el.onceProcessed) {
+        return genOnce(el, state)
+    } else if (el.for && !el.forProcessed) {
+        return genFor(el, state)
+    } else if (el.if && !el.ifProcessed) {
+        return genIf(el, state)
+    } else if (el.tag === 'template' && !el.slotTarget && !state.pre) {
+        return genChildren(el, state) || 'void 0'
+    } else if (el.tag === 'slot') {
+        return genSlot(el, state)
     } else {
-      let data
-      if (!el.plain || (el.pre && state.maybeComponent(el))) {
-        data = genData(el, state)
-      }
+        // component or element
+        let code
+        if (el.component) {
+            code = genComponent(el.component, el, state)
+        } else {
+            let data
+            if (!el.plain || (el.pre && state.maybeComponent(el))) {
+                data = genData(el, state)
+            }
 
-      const children = el.inlineTemplate ? null : genChildren(el, state, true)
-      code = `_c('${el.tag}'${
+            const children = el.inlineTemplate ? null : genChildren(el, state, true)
+            code = `_c('${el.tag}'${
         data ? `,${data}` : '' // data
       }${
         children ? `,${children}` : '' // children
@@ -525,6 +527,7 @@ function needsNormalization (el: ASTElement): boolean {
 
 function genNode (node: ASTNode, state: CodegenState): string {
   if (node.type === 1) {
+    //标签
     return genElement(node, state)
   } else if (node.type === 3 && node.isComment) {
     return genComment(node)

@@ -56,6 +56,7 @@ Vue.prototype.$mount = function(
                 }
                 return this
             }
+            //el vue模板
         } else if (el) {
             template = getOuterHTML(el)
         }
@@ -65,6 +66,7 @@ Vue.prototype.$mount = function(
                 mark('compile')
             }
 
+            //模板转换为render()
             const { render, staticRenderFns } = compileToFunctions(template, {
                 outputSourceRange: process.env.NODE_ENV !== 'production',
                 shouldDecodeNewlines,

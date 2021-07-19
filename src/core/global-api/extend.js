@@ -20,6 +20,7 @@ export function initExtend(Vue: GlobalAPI) {
         extendOptions = extendOptions || {}
         const Super = this
         const SuperId = Super.cid
+            //缓存的构造函数
         const cachedCtors = extendOptions._Ctor || (extendOptions._Ctor = {})
         if (cachedCtors[SuperId]) {
             return cachedCtors[SuperId]
@@ -27,6 +28,7 @@ export function initExtend(Vue: GlobalAPI) {
 
         const name = extendOptions.name || Super.options.name
         if (process.env.NODE_ENV !== 'production' && name) {
+            //验证组件名称合法 Vue.extend直接在外部调用
             validateComponentName(name)
         }
 
@@ -35,14 +37,16 @@ export function initExtend(Vue: GlobalAPI) {
             this._init(options)
         }
 
-        // 原型继承自vue
+        // 原型继承自Vue构造Super.prototype ,sub可以直接访问Vue.init()
         Sub.prototype = Object.create(Super.prototype)
         Sub.prototype.constructor = Sub
         Sub.cid = cid++
+
             Sub.options = mergeOptions(
                 Super.options,
                 extendOptions
             )
+
         Sub['super'] = Super
 
         // For props and computed properties, we define the proxy getters on
@@ -63,9 +67,10 @@ export function initExtend(Vue: GlobalAPI) {
         // create asset registers, so extended classes
         // can have their private assets too.
         ASSET_TYPES.forEach(function(type) {
-                Sub[type] = Super[type]
-            })
-            // enable recursive self-lookup
+            Sub[type] = Super[type]
+        })
+
+        // enable recursive self-lookup
         if (name) {
             Sub.options.components[name] = Sub
         }

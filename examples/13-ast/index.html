@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+        <h1>静态根节点<span>模板编译</span></h1>
+        <div>{{msg}}
+            <p>hello</p>
+        </div>
+        <div>纯文本</div>
+    </div>
+    <script src="../../dist/vue.js"></script>
+    <script>
+        //compiler
+        const vm = new Vue({
+            el: '#app',
+
+            data: {
+                msg: "compile result",
+                isShow: false
+            },
+            methods: {
+                handler() {
+                    console.log("test")
+                }
+            }
+        })
+        console.log(vm.$options.render)
+    </script>
+</body>
+
+</html>

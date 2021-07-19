@@ -121,7 +121,7 @@ export function createPatchFunction(backend) {
 
     let creatingElmInVPre = 0
 
-    function(
+    function createElm(
         vnode,
         insertedVnodeQueue,
         parentElm,
@@ -221,6 +221,7 @@ export function createPatchFunction(backend) {
             // component also has set the placeholder vnode's elm.
             // in that case we can just return the element and be done.
             if (isDef(vnode.componentInstance)) {
+                //vnode的create钩子 && 组件的create 钩子 初始化属性样式事件
                 initComponent(vnode, insertedVnodeQueue)
                 insert(parentElm, vnode.elm, refElm)
                 if (isTrue(isReactivated)) {
@@ -289,7 +290,7 @@ export function createPatchFunction(backend) {
                 checkDuplicateKeys(children)
             }
             for (let i = 0; i < children.length; ++i) {
-                (children[i], insertedVnodeQueue, vnode.elm, null, true, children, i)
+                createElm(children[i], insertedVnodeQueue, vnode.elm, null, true, children, i)
             }
         } else if (isPrimitive(vnode.text)) {
             nodeOps.appendChild(vnode.elm, nodeOps.createTextNode(String(vnode.text)))
@@ -342,7 +343,7 @@ export function createPatchFunction(backend) {
 
     function addVnodes(parentElm, refElm, vnodes, startIdx, endIdx, insertedVnodeQueue) {
         for (; startIdx <= endIdx; ++startIdx) {
-            (vnodes[startIdx], insertedVnodeQueue, parentElm, refElm, false, vnodes, startIdx)
+            createElm(vnodes[startIdx], insertedVnodeQueue, parentElm, refElm, false, vnodes, startIdx)
         }
     }
 
@@ -452,7 +453,7 @@ export function createPatchFunction(backend) {
                     oldKeyToIdx[newStartVnode.key] :
                     findIdxInOld(newStartVnode, oldCh, oldStartIdx, oldEndIdx)
                 if (isUndef(idxInOld)) { // New element
-                    (newStartVnode, insertedVnodeQueue, parentElm, oldStartVnode.elm, false, newCh, newStartIdx)
+                    createElm(newStartVnode, insertedVnodeQueue, parentElm, oldStartVnode.elm, false, newCh, newStartIdx)
                 } else {
                     vnodeToMove = oldCh[idxInOld]
                     if (sameVnode(vnodeToMove, newStartVnode)) {
@@ -461,7 +462,7 @@ export function createPatchFunction(backend) {
                         canMove && nodeOps.insertBefore(parentElm, vnodeToMove.elm, oldStartVnode.elm)
                     } else {
                         // same key but different element. treat as new element
-                        (newStartVnode, insertedVnodeQueue, parentElm, oldStartVnode.elm, false, newCh, newStartIdx)
+                        createElm(newStartVnode, insertedVnodeQueue, parentElm, oldStartVnode.elm, false, newCh, newStartIdx)
                     }
                 }
                 newStartVnode = newCh[++newStartIdx]
@@ -719,13 +720,12 @@ export function createPatchFunction(backend) {
 
         if (isUndef(oldVnode)) {
             // empty mount (likely as component), create new root element
-            isInitialPatch = true(vnode, insertedVnodeQueue)
+            isInitialPatch = true
+            createElm(vnode, insertedVnodeQueue)
         } else {
-            //nodeType为真实dom属性， 此时为真实dom元素，为首次渲染
             const isRealElement = isDef(oldVnode.nodeType)
             if (!isRealElement && sameVnode(oldVnode, vnode)) {
                 // patch existing root node
-                //diff算法
                 patchVnode(oldVnode, vnode, insertedVnodeQueue, null, null, removeOnly)
             } else {
                 if (isRealElement) {
@@ -752,7 +752,6 @@ export function createPatchFunction(backend) {
                     }
                     // either not server-rendered, or hydration failed.
                     // create an empty node and replace it
-                    //转换为vnode 返回vnode对象
                     oldVnode = emptyNodeAt(oldVnode)
                 }
 
@@ -762,7 +761,7 @@ export function createPatchFunction(backend) {
                 const parentElm = nodeOps.parentNode(oldElm)
 
                 // create new node
-                (
+                createElm(
                     vnode,
                     insertedVnodeQueue,
                     // extremely rare edge case: do not insert if old element is in a
